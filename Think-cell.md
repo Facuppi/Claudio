@@ -1,165 +1,217 @@
-# Plan de Trabajo: Replicar Landing Page de think-cell (OSB Software LATAM)
+# Plan de Trabajo: Alternativa web a think-cell con Google Sheets
+
+## Decisión de arquitectura
+
+### ¿think-cell funciona en Google Slides?
+**No.** think-cell es exclusivamente un add-in de PowerPoint + Excel (Windows).
+No existe versión para Google Slides, Google Sheets, Mac nativa ni web.
+Depende obligatoriamente de una licencia Microsoft 365 + licencia think-cell (~USD 327/año).
+
+### Solución adoptada: Web App independiente con Google Sheets
+Construir una **aplicación web** que:
+- Lee datos directamente desde un **Google Spreadsheet** (sin instalar nada)
+- Renderiza gráficos profesionales en el browser (**Chart.js**)
+- Permite descargar los gráficos como **PNG o PDF**
+- **Sin licencias**, sin PowerPoint, sin instalaciones
+
+---
 
 ## Objetivo
 
-Replicar fielmente la landing page de think-cell distribuida por OSB Software para Latinoamérica,
-usando el mismo formato visual que el `index.html` existente del proyecto (dark mode, mobile-first,
-max-width 480px, tarjetas con íconos, secciones por categoría).
+Construir `chartcell.html`: una single-page app que replica las funcionalidades
+core de think-cell usando Google Sheets como fuente de datos y Chart.js para renderizar.
 
 ---
 
-## Referencia Original
+## 1. Stack Tecnológico
 
-- **URL:** `https://landingpages.osbsoftware.com.br/think-cell-el-software-lider-para-presentaciones-profesionales-en-latinoamerica`
-- **Distribuidor LATAM:** OSB Software Brasil (20+ años en el mercado tecnológico)
-- **Producto:** think-cell — add-in líder de PowerPoint para gráficos y presentaciones profesionales
-
----
-
-## 1. Identidad Visual y Estilos
-
-### Paleta de colores
-| Elemento              | Color                        |
-|-----------------------|------------------------------|
-| Fondo principal       | `#000` (negro puro)          |
-| Fondo tarjetas        | `rgba(255,255,255,0.03-0.07)`|
-| Acento primario       | `#E8002D` (rojo think-cell)  |
-| Acento secundario     | `#003366` (azul oscuro)      |
-| Acento terciario      | `#00B4D8` (teal/cyan)        |
-| Texto principal       | `#fff`                       |
-| Texto secundario      | `#888` / `#aaa`              |
-| Bordes               | `rgba(255,255,255,0.07-0.12)`|
-
-### Tipografía
-- Fuente: `-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif`
-- Igual a la del `index.html` existente
-
-### Logo / Ícono
-- Cuadrado redondeado (`border-radius: 22px`)
-- Fondo: gradiente rojo `linear-gradient(145deg, #E8002D, #B00020)`
-- Ícono: `📊` (gráfico de barras)
+| Capa           | Tecnología                          | Justificación                              |
+|----------------|-------------------------------------|--------------------------------------------|
+| UI             | HTML + CSS (dark mode, mismo estilo)| Consistencia con `index.html` del proyecto |
+| Gráficos       | **Chart.js 4** (CDN)                | Gratuito, 40+ tipos, exporta como canvas   |
+| Datos          | **Google Sheets → CSV público**     | Sin auth, sin API key, cero fricción       |
+| Parser         | JS puro (fetch + split CSV)         | Sin dependencias extra                     |
+| Export         | Canvas `toDataURL()` + `print()`    | PNG descargable, PDF vía browser print     |
 
 ---
 
-## 2. Estructura de Secciones (orden y contenido)
+## 2. Cómo funciona la integración con Google Sheets
 
-### SECCIÓN 1 — Header / Hero
+### Paso del usuario (una sola vez):
+1. Abrir el Google Sheet con los datos
+2. `Archivo → Compartir → Publicar en la web → Hoja → CSV → Publicar`
+3. Copiar la URL generada (formato: `https://docs.google.com/spreadsheets/d/{ID}/pub?output=csv`)
+4. Pegar esa URL en la app
+
+### Lo que hace la app:
 ```
-[Ícono 📊]
-"El software líder para presentaciones profesionales"
-Subtítulo: "think-cell es el add-in de PowerPoint más usado por consultoras y empresas Fortune 100.
-Creá gráficos profesionales en minutos, directo en PowerPoint."
-Chips: [📊 PowerPoint Add-in] [⚡ +40 tipos de gráficos] [🌎 LATAM]
+URL Google Sheets CSV
+        ↓
+    fetch(url)               ← el browser lo descarga directamente (CORS abierto)
+        ↓
+   parsear CSV               ← split por líneas y comas
+        ↓
+   detectar estructura       ← primera fila = labels, resto = series de datos
+        ↓
+   renderizar Chart.js       ← en un <canvas> en pantalla
+        ↓
+   exportar PNG / PDF        ← canvas.toDataURL() o window.print()
 ```
 
-### SECCIÓN 2 — ¿Qué es think-cell?
-- Título de sección: `ACERCA DEL PRODUCTO`
-- Tarjetas:
-  - 📊 **Add-in nativo de PowerPoint** — Se instala directamente en PowerPoint. Sin cambiar tu flujo de trabajo, creás gráficos de nivel consultor en segundos.
-  - 🔗 **Vinculado a Excel** — Conectá tus datos de Excel directamente a los gráficos. Cuando el dato cambia, el gráfico se actualiza solo.
-  - 🌍 **Líder mundial** — Usado por McKinsey, Mercer y la mayoría de las empresas Fortune 100. Estándar de la industria en consultoría estratégica.
+> Google Sheets publica CSVs con cabeceras CORS abiertas, por lo que el fetch funciona
+> directamente desde cualquier página HTML sin necesidad de backend ni proxy.
 
-### SECCIÓN 3 — Tipos de Gráficos (40+)
-- Título de sección: `GRÁFICOS PROFESIONALES`
-- Tarjetas:
-  - 📉 **Waterfall / Bridge** — El estándar para análisis EBITDA, P&L y variaciones financieras. Cálculo automático de totales y subtotales.
-  - 📊 **Barras y columnas** — Apiladas, agrupadas, 100%. Con flechas CAGR y líneas de valor calculadas automáticamente.
-  - 🗂️ **Gantt** — El único software que genera Gantt directo en PowerPoint. Calendario integrado, semana de 5 o 7 días, escala temporal automática.
-  - 🔵 **Scatter / Bubble** — Gráficos de dispersión y burbujas para análisis de posicionamiento y correlación.
-  - 🥧 **Pie / Donut** — Tortas con variantes gauge y pie-of-pie. Etiquetas automáticas con porcentajes.
-  - 📐 **Mekko / Marimekko** — Ideales para análisis de mercado y participación de segmentos.
+---
 
-### SECCIÓN 4 — Funcionalidades Clave
-- Título de sección: `FUNCIONALIDADES`
-- Tarjetas:
-  - ⚡ **Actualización automática** — Vinculá Excel a PowerPoint. Elegí actualización manual o automática por cada slide.
-  - 🎨 **Estilos de marca** — Aplicá los colores corporativos a todos los gráficos con un archivo de estilo. Una sola vez, para siempre.
-  - 🖼️ **Imágenes integradas** — Acceso directo a Getty Images y Unsplash desde PowerPoint.
-  - 📡 **Conector Statista** — Importá datos de Statista directo a tus gráficos con un clic.
-  - 🔍 **Chart Scanner** — Reconocé y editá gráficos existentes en presentaciones heredadas.
-  - 📚 **Biblioteca de elementos** — Cuadros de texto inteligentes, chevrones y conectores para flujos de proceso.
+## 3. Tipos de Gráficos a Implementar
 
-### SECCIÓN 5 — Beneficios / Métricas
-- Título de sección: `POR QUÉ ELEGIRLO`
-- Tarjetas:
-  - ⏱️ **Ahorrá horas por semana** — El Banco de Georgia redujo el tiempo de creación de reportes en un 50%. Vaillant Group mejoró su eficiencia financiera.
-  - 🏆 **Estándar de la industria** — Adoptado por las principales consultoras del mundo: McKinsey, Mercer, Bain, BCG y más de la mitad del Fortune 100.
-  - 🎓 **Gratis para estudiantes** — Licencias gratuitas para universidades, instituciones académicas y ONGs.
-  - 🔒 **Sin curva de aprendizaje** — Funciona dentro de PowerPoint. Si sabés usar PowerPoint, sabés usar think-cell.
+| Tipo            | Ícono | Implementación en Chart.js                        | Caso de uso típico                  |
+|-----------------|-------|---------------------------------------------------|-------------------------------------|
+| Barras verticales (Column) | 📊 | `type: 'bar'`                        | Comparación por categoría           |
+| Barras horizontales        | 📉 | `type: 'bar'` + `indexAxis: 'y'`    | Rankings, comparaciones largas      |
+| Apiladas 100%              | 📶 | `type: 'bar'` + `stacked: true`     | Participación de mercado            |
+| Waterfall / Bridge         | 🌊 | Barras apiladas con segmento invisible| EBITDA bridge, P&L, variaciones    |
+| Líneas                     | 📈 | `type: 'line'`                       | Tendencias temporales               |
+| Área                       | 🏔️ | `type: 'line'` + `fill: true`       | Acumulados, volumen                 |
+| Torta / Donut              | 🥧 | `type: 'pie'` / `type: 'doughnut'`  | Distribución proporcional           |
+| Scatter / Burbuja          | 🔵 | `type: 'scatter'` / `type: 'bubble'`| Correlación, posicionamiento        |
+| Gantt                      | 🗂️ | Barras horizontales con offset       | Cronogramas, proyectos              |
 
-### SECCIÓN 6 — Demo / Ejemplo Visual
-- Título de sección: `ASÍ FUNCIONA`
-- Caja demo tipo chat (igual al `index.html`):
-  - **Usuario:** "Necesito un waterfall chart con los datos de EBITDA de este Excel para mi presentación de mañana."
-  - **think-cell:** "Vinculá tu hoja de Excel, seleccioná el rango de datos y think-cell crea el gráfico automáticamente en PowerPoint. Cuando cambies los números, el gráfico se actualiza solo. 📊"
+---
 
-### SECCIÓN 7 — Testimonios / Casos de éxito
-- Título de sección: `CASOS DE ÉXITO`
-- Tarjetas:
-  - 🏦 **NTT DATA** — "Mejoramos la consistencia de marca, redujimos el tiempo de armado de presentaciones y aumentamos el valor percibido por nuestros clientes."
-  - 🏛️ **Bank of Georgia** — "Redujimos el tiempo de creación de reportes en un 50% gracias a la automatización de datos."
-  - 🔧 **Vaillant Group** — "Transformamos la eficiencia de nuestros reportes financieros con think-cell."
+## 4. Estructura del Spreadsheet esperada
 
-### SECCIÓN 8 — Prueba / CTA Final
-- Título de sección: `COMENZÁ HOY`
-- Caja destacada con:
-  - Texto: "Probá think-cell gratis por 30 días. Sin tarjeta de crédito."
-  - Botón primario: `🚀 Iniciar prueba gratuita`
-  - Botón secundario: `📋 Ver precios`
-  - Nota: "Desde USD 327.60/año · Descuentos por volumen disponibles"
-
-### Footer
+### Formato general (Chart.js standard):
 ```
-think-cell · Distribuido por OSB Software · LATAM · 2026
+| Categoría  | Serie 1 | Serie 2 | Serie 3 |
+|------------|---------|---------|---------|
+| Enero      | 120     | 80      | 60      |
+| Febrero    | 145     | 90      | 75      |
+| Marzo      | 130     | 110     | 55      |
+```
+- **Fila 1:** Labels (eje X o categorías)
+- **Columna 1:** Nombres de categorías
+- **Resto:** Valores numéricos por serie
+
+### Formato Waterfall:
+```
+| Concepto          | Valor |
+|-------------------|-------|
+| Ingresos          | 1000  |
+| Costo de ventas   | -300  |
+| Gastos operativos | -200  |
+| EBITDA            | total |
+```
+
+### Formato Gantt:
+```
+| Tarea              | Inicio     | Fin        |
+|--------------------|------------|------------|
+| Planificación      | 2026-01-01 | 2026-01-15 |
+| Desarrollo         | 2026-01-10 | 2026-02-28 |
+| Testing            | 2026-02-20 | 2026-03-10 |
 ```
 
 ---
 
-## 3. Archivos a Crear
+## 5. Interfaz de Usuario (Layout)
 
-| Archivo           | Descripción                                      |
-|-------------------|--------------------------------------------------|
-| `think-cell.html` | Página completa (HTML + CSS inline, sin deps)    |
-
-> Todo el CSS va embebido en `<style>` dentro del `<head>`, igual que en `index.html`.
-
----
-
-## 4. Patrón de Componentes (CSS reutilizado del index.html)
-
-Reutilizar los mismos estilos del `index.html` existente:
-
-- `.card-list` + `.card` + `.card-icon` + `.card-text`
-- `.section` + `.section-title`
-- `.chip-row` + `.chip`
-- `.demo-box` + `.chat-bubble` + `.chat-reply`
-- `.logo` (cambiar gradiente a rojo)
-- Colores de íconos nuevos: `.bg-red` (rojo think-cell)
-
-Agregar componentes nuevos:
-- `.cta-box` — caja de CTA final con borde rojo y botones
-- `.btn-primary` — botón rojo sólido
-- `.btn-secondary` — botón con borde blanco semitransparente
-- `.testimonial-card` — variante de `.card` con comillas y empresa
-
----
-
-## 5. Pasos de Implementación
-
-- [ ] **Paso 1:** Crear `think-cell.html` con estructura base (head, body, header)
-- [ ] **Paso 2:** Implementar secciones 1-4 (hero, ¿qué es?, gráficos, funcionalidades)
-- [ ] **Paso 3:** Implementar secciones 5-8 (beneficios, demo, testimonios, CTA)
-- [ ] **Paso 4:** Añadir estilos CSS adicionales (`.cta-box`, `.btn-primary`, `.btn-secondary`, `.testimonial-card`)
-- [ ] **Paso 5:** Revisar consistencia visual con `index.html`
-- [ ] **Paso 6:** Commit y push a la rama `claude/replicate-thinksell-software-hpsew`
+```
+┌─────────────────────────────────────┐
+│  📊  ChartCell                      │
+│  Gráficos profesionales desde       │
+│  Google Sheets · Sin licencias      │
+├─────────────────────────────────────┤
+│  FUENTE DE DATOS                    │
+│  ┌─────────────────────────────┐    │
+│  │ URL de Google Sheets (CSV)  │    │
+│  └─────────────────────────────┘    │
+│  [ Cargar datos ]                   │
+├─────────────────────────────────────┤
+│  TIPO DE GRÁFICO                    │
+│  [📊 Barras] [📈 Línea] [🥧 Torta] │
+│  [🌊 Waterfall] [🗂️ Gantt] [🔵 Scatter]│
+├─────────────────────────────────────┤
+│  CONFIGURACIÓN                      │
+│  Título: [________________]         │
+│  Colores: [■ Rojo] [■ Azul] [■ Auto]│
+│  Mostrar valores: [✓]               │
+├─────────────────────────────────────┤
+│  VISTA PREVIA                       │
+│  ┌─────────────────────────────┐    │
+│  │                             │    │
+│  │    [CANVAS DEL GRÁFICO]     │    │
+│  │                             │    │
+│  └─────────────────────────────┘    │
+├─────────────────────────────────────┤
+│  [ ⬇️ Descargar PNG ] [ 🖨️ PDF ]   │
+└─────────────────────────────────────┘
+```
 
 ---
 
-## 6. Restricciones y Notas
+## 6. Archivos a Crear
 
-- **Sin dependencias externas:** Sin CDN, sin JS frameworks. HTML + CSS puro.
-- **Mobile-first:** `max-width: 480px`, centrado en pantalla.
-- **Dark mode:** Fondo negro, igual que `index.html`.
-- **Idioma:** Español latinoamericano (voseo argentino como en el `index.html`).
-- **Sin imágenes reales:** Solo emojis como íconos (mismo approach que `index.html`).
-- **No copiar textos con copyright:** Todo el contenido se redacta de nuevo respetando el formato.
+| Archivo          | Descripción                                                    |
+|------------------|----------------------------------------------------------------|
+| `chartcell.html` | App completa (HTML + CSS + JS inline, Chart.js vía CDN)       |
+
+> Un único archivo HTML auto-contenido. No requiere servidor, se puede abrir directamente
+> en el browser o hostear en GitHub Pages / Netlify gratis.
+
+---
+
+## 7. Paleta Visual
+
+Misma identidad que `index.html` existente:
+
+| Elemento           | Color                          |
+|--------------------|--------------------------------|
+| Fondo              | `#000`                         |
+| Tarjetas           | `rgba(255,255,255,0.04)`       |
+| Acento primario    | `#E8002D` (rojo)               |
+| Acento secundario  | `#00B4D8` (teal)               |
+| Inputs             | `rgba(255,255,255,0.06)` + borde `rgba(255,255,255,0.15)` |
+| Botón primario     | `#E8002D` sólido               |
+| Texto              | `#fff` / `#aaa`                |
+
+---
+
+## 8. Pasos de Implementación
+
+- [ ] **Paso 1:** Crear `chartcell.html` con layout base (header, secciones, footer)
+- [ ] **Paso 2:** Integrar Chart.js 4 vía CDN
+- [ ] **Paso 3:** Implementar `fetchAndParseCSV(url)` — fetch Google Sheets CSV y parsear
+- [ ] **Paso 4:** Implementar renderizadores de gráficos (bar, line, pie, scatter)
+- [ ] **Paso 5:** Implementar Waterfall como barras apiladas con segmento invisible
+- [ ] **Paso 6:** Implementar Gantt como barras horizontales con offset de fecha
+- [ ] **Paso 7:** Conectar UI → parser → Chart.js (flujo completo)
+- [ ] **Paso 8:** Implementar export PNG (`canvas.toDataURL`) y PDF (`window.print`)
+- [ ] **Paso 9:** Testing con un Google Sheet de ejemplo público
+- [ ] **Paso 10:** Commit y push a `claude/replicate-thinksell-software-hpsew`
+
+---
+
+## 9. Limitaciones vs think-cell original
+
+| Funcionalidad think-cell          | Esta app                              |
+|-----------------------------------|---------------------------------------|
+| Edición directa en PowerPoint     | ❌ No (es web, no add-in)            |
+| 40+ tipos de gráficos             | ✅ 9 tipos cubiertos (los más usados) |
+| Vinculación Excel automática      | ✅ Via Google Sheets CSV publicado    |
+| Actualización automática          | ⚠️ Manual (refetch con botón)        |
+| Estilos de marca corporativos     | ✅ Colores configurables              |
+| Export PNG/PDF                    | ✅ Canvas → PNG, Print → PDF         |
+| Gantt en presentación             | ✅ Descarga como imagen               |
+| Sin licencia                      | ✅ 100% gratuito                      |
+| Sin PowerPoint                    | ✅ Solo browser                       |
+| Sin instalación                   | ✅ Abre directo en el browser         |
+
+---
+
+## 10. Restricciones
+
+- El Google Sheet debe estar **publicado como CSV** (no basta con "compartir con link")
+- No hay backend: todo corre en el browser del usuario
+- Para hojas muy grandes (+10.000 filas), el rendering puede ser lento
+- Los gráficos Gantt requieren que las fechas estén en formato `YYYY-MM-DD`
