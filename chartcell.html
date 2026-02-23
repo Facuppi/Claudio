@@ -3,24 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChartCell · MELI Charts</title>
+  <title>ChartCell · Gráficos Profesionales</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0f0f0f;
-      --surface:     #1a1a1a;
-      --surface2:    #222;
-      --border:      rgba(255,255,255,0.1);
-      --text:        #f0f0f0;
-      --muted:       #888;
-      --meli-yellow: #FFE600;
-      --meli-blue:   #3483FA;
-      --meli-green:  #00A650;
-      --meli-pink:   #F23D4F;
-      --meli-orange: #FF7733;
-      --accent:      #3483FA;
+      --bg:        #0f0f0f;
+      --surface:   #161616;
+      --surface2:  #1e1e1e;
+      --surface3:  #252525;
+      --border:    rgba(255,255,255,0.09);
+      --text:      #f0f0f0;
+      --muted:     #777;
+      --yellow:    #FFE600;
+      --blue:      #3483FA;
+      --green:     #00A650;
+      --pink:      #F23D4F;
+      --orange:    #FF7733;
+      --purple:    #9B59B6;
+      --teal:      #00BCD4;
+      --accent:    #3483FA;
     }
 
     body {
@@ -30,289 +33,296 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      height: 100vh;
     }
 
-    /* ─── HEADER ─────────────────────────────────── */
+    /* ── HEADER ─────────────────────────────────── */
     header {
-      padding: 20px 32px;
+      padding: 0 24px;
+      height: 52px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       background: var(--surface);
+      flex-shrink: 0;
+      z-index: 10;
     }
     .logo-mark {
-      width: 36px; height: 36px;
-      background: var(--meli-yellow);
-      border-radius: 8px;
+      width: 30px; height: 30px;
+      background: var(--yellow);
+      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 900; color: #000;
+      font-size: 15px; font-weight: 900; color: #000;
+      flex-shrink: 0;
     }
-    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; }
-    header span { font-size: 0.8rem; color: var(--muted); margin-left: 4px; font-weight: 400; }
+    header h1 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.3px; }
+    header h1 span { font-size: 0.78rem; color: var(--muted); font-weight: 400; margin-left: 4px; }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
 
-    /* ─── LAYOUT ─────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 7px 14px; border-radius: 7px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border: none; transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { transform: scale(0.97); }
+    .btn-add     { background: var(--accent); color: #fff; }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; margin-top:4px; }
+    .btn-secondary { background: var(--surface3); color: var(--text); border: 1px solid var(--border); width: 100%; margin-top:4px; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-danger { background: rgba(242,61,79,0.12); color: #ff8c97; border: 1px solid rgba(242,61,79,0.3); width:100%; margin-top:4px; }
+    .btn-pdf { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+
+    /* ── APP LAYOUT ─────────────────────────────── */
     .app {
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 290px 1fr;
       flex: 1;
       min-height: 0;
+      overflow: hidden;
     }
 
-    /* ─── SIDEBAR ────────────────────────────────── */
+    /* ── SIDEBAR ─────────────────────────────────── */
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 24px 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 24px;
     }
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sidebar-title {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .sidebar-body { padding: 0; flex: 1; }
 
-    .panel-title {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+    .sb-empty {
+      padding: 32px 20px; text-align: center; color: var(--muted);
+      font-size: 0.82rem; line-height: 1.6;
+    }
+    .sb-empty-icon { font-size: 36px; opacity: 0.3; margin-bottom: 10px; }
+
+    .sb-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sb-section-title {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
     }
 
     label {
-      display: block;
-      font-size: 0.78rem;
-      color: #ccc;
-      margin-bottom: 5px;
+      display: block; font-size: 0.75rem; color: #aaa; margin-bottom: 4px;
     }
-
-    input[type="text"], input[type="number"], select, textarea {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 11px;
-      font-size: 0.82rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
+    input[type="text"], input[type="number"], input[type="url"], select, textarea {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 7px; padding: 7px 10px; font-size: 0.8rem; color: var(--text);
+      outline: none; transition: border-color 0.15s;
     }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
-    textarea { resize: vertical; min-height: 64px; font-family: monospace; font-size: 0.75rem; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn:hover { opacity: 0.88; }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #fff; width: 100%; }
-    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); width: 100%; }
-    .btn-export { background: #111; color: var(--meli-yellow); border: 1px solid var(--meli-yellow); flex: 1; }
-
-    /* Series config */
-    .series-list { display: flex; flex-direction: column; gap: 8px; }
-    .series-row {
-      display: grid;
-      grid-template-columns: 28px 1fr 48px;
-      gap: 6px;
-      align-items: center;
-    }
-    .series-row input[type="color"] {
-      width: 28px; height: 28px;
-      padding: 2px; border-radius: 6px;
-      cursor: pointer; border: 1px solid var(--border);
-      background: var(--surface2);
-    }
-    .series-row .series-name { font-size: 0.8rem; }
-    .series-row .series-pct {
-      font-size: 0.72rem; color: var(--muted);
-      text-align: right;
-    }
-
-    /* Bracket config */
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 60px; font-family: monospace; font-size: 0.72rem; }
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .hint { font-size: 0.68rem; color: var(--muted); margin-top: 3px; line-height: 1.4; }
 
-    /* ─── MAIN AREA ───────────────────────────────── */
+    /* Type pills */
+    .type-pills {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    }
+    .type-pill {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: 6px 4px;
+      font-size: 0.68rem; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; text-align: center; line-height: 1.3;
+    }
+    .type-pill:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .type-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Scale group */
+    .sg-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sg-btn {
+      flex: 1; min-width: 40px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: 6px 0;
+      font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+      text-align: center;
+    }
+    .sg-btn:hover { color: var(--text); }
+    .sg-btn.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,230,0,0.08); }
+    .sg-btn[data-group="A"].active { border-color: #3483FA; color: #3483FA; background: rgba(52,131,250,0.08); }
+    .sg-btn[data-group="B"].active { border-color: #00A650; color: #00A650; background: rgba(0,166,80,0.08); }
+    .sg-btn[data-group="C"].active { border-color: #FF7733; color: #FF7733; background: rgba(255,119,51,0.08); }
+
+    /* Series list */
+    .series-list { display: flex; flex-direction: column; gap: 6px; }
+    .series-row {
+      display: grid; grid-template-columns: 26px 1fr 38px;
+      gap: 6px; align-items: center;
+    }
+    input[type="color"] {
+      width: 26px; height: 26px; padding: 2px; border-radius: 5px;
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface2);
+    }
+    .series-pct { font-size: 0.7rem; color: var(--muted); text-align: right; }
+
+    /* Status bar */
+    .status-bar {
+      font-size: 0.73rem; padding: 6px 10px; border-radius: 6px;
+      margin-top: 6px; display: none;
+    }
+    .status-bar.info    { background: rgba(52,131,250,0.15); color: #7ab5ff; display: block; }
+    .status-bar.error   { background: rgba(242,61,79,0.15); color: #ff8c97; display: block; }
+    .status-bar.success { background: rgba(0,166,80,0.15); color: #4cdf93; display: block; }
+
+    /* Export row */
+    .export-row { display: flex; gap: 6px; margin-top: 4px; }
+    .btn-export { flex: 1; background: var(--surface3); color: var(--muted); border: 1px solid var(--border); }
+    .btn-export:hover { color: var(--text); }
+
+    /* ── MAIN ─────────────────────────────────────── */
     .main {
-      display: flex;
-      flex-direction: column;
-      padding: 28px 36px 28px;
-      gap: 20px;
-      overflow-y: auto;
+      overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column;
     }
 
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    /* ── CHART CARD ─────────────────────────────── */
     .chart-card {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 32px 20px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
       position: relative;
     }
-
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
+    .chart-card:hover {
+      border-color: rgba(255,255,255,0.18);
     }
-    .chart-title-main {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .chart-subtitle {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .chart-kpi {
-      text-align: right;
-    }
-    .chart-kpi .kpi-value {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .chart-kpi .kpi-yoy {
-      font-size: 0.75rem;
-      color: var(--meli-green);
-      margin-top: 1px;
+    .chart-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(52,131,250,0.18);
     }
 
-    /* Canvas wrapper for annotations */
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px 8px; border-bottom: 1px solid var(--border);
+    }
+    .card-type-badge {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    }
+    .card-title-text {
+      flex: 1; font-size: 0.85rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-subtitle-text {
+      font-size: 0.72rem; color: var(--muted);
+    }
+    .card-scale-badge {
+      font-size: 0.65rem; font-weight: 800; padding: 2px 7px;
+      border-radius: 4px; flex-shrink: 0;
+    }
+    .card-scale-badge[data-group="A"] { background: rgba(52,131,250,0.15); color: #3483FA; }
+    .card-scale-badge[data-group="B"] { background: rgba(0,166,80,0.15); color: #00A650; }
+    .card-scale-badge[data-group="C"] { background: rgba(255,119,51,0.15); color: #FF7733; }
+
+    .card-delete {
+      background: transparent; border: none; color: var(--muted);
+      cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px;
+      border-radius: 4px; flex-shrink: 0; transition: color 0.15s;
+    }
+    .card-delete:hover { color: #ff8c97; }
+
+    .card-body { padding: 16px; }
+
+    .card-empty {
+      padding: 40px 20px; text-align: center; color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .card-empty-icon { font-size: 32px; opacity: 0.3; margin-bottom: 8px; }
+
+    /* Canvas wrapper */
     .canvas-wrapper {
-      position: relative;
-      width: 100%;
+      position: relative; width: 100%;
     }
-    #mainChart { width: 100% !important; }
-
-    /* SVG overlay for annotations */
-    #annotationSvg {
-      position: absolute;
-      top: 0; left: 0;
-      pointer-events: none;
-      overflow: visible;
+    .chart-canvas { width: 100% !important; }
+    .anno-svg {
+      position: absolute; top: 0; left: 0;
+      pointer-events: none; overflow: visible;
     }
-
-    /* Data table below chart */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 0;
-      font-size: 0.72rem;
-    }
-    .data-table th, .data-table td {
-      padding: 6px 8px;
-      text-align: center;
-      border: none;
-    }
-    .data-table thead th {
-      color: var(--muted);
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      border-bottom: 1px solid var(--border);
-    }
-    .data-table thead th:first-child { text-align: left; }
-    .data-table td:first-child { text-align: left; font-weight: 600; color: #ccc; }
-    .data-table tbody tr:nth-child(odd) { background: rgba(255,255,255,0.02); }
-    .data-table .positive { color: var(--meli-green); font-weight: 600; }
-    .data-table .negative { color: var(--meli-pink); font-weight: 600; }
 
     /* Legend */
     .legend-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
+      display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
     }
     .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      color: #ccc;
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; color: #bbb;
     }
-    .legend-dot {
-      width: 10px; height: 10px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
+    .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 
-    /* Export row */
-    .export-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
+    /* Data table */
+    .data-table {
+      width: 100%; border-collapse: collapse; font-size: 0.68rem; margin-top: 4px;
     }
-
-    /* Empty state */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 60px 20px;
-      color: var(--muted);
-      text-align: center;
+    .data-table th, .data-table td {
+      padding: 4px 6px; text-align: center; border: none;
     }
-    .empty-icon { font-size: 48px; opacity: 0.4; }
-    .empty-state h3 { font-size: 1rem; color: #aaa; }
-    .empty-state p { font-size: 0.82rem; line-height: 1.5; max-width: 320px; }
-
-    /* Status bar */
-    #statusBar {
-      font-size: 0.75rem;
-      padding: 6px 12px;
-      border-radius: 6px;
-      display: none;
+    .data-table thead th {
+      color: var(--muted); font-weight: 600; letter-spacing: 0.03em;
+      border-bottom: 1px solid var(--border);
     }
-    #statusBar.info { background: rgba(52,131,250,0.15); color: #7ab5ff; display: block; }
-    #statusBar.error { background: rgba(242,61,79,0.15); color: #ff8c97; display: block; }
-    #statusBar.success { background: rgba(0,166,80,0.15); color: #4cdf93; display: block; }
-
-    /* Steps hint */
-    .hint-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .hint-step {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      font-size: 0.78rem;
-      line-height: 1.4;
-    }
-    .step-num {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.65rem; font-weight: 700;
-      flex-shrink: 0;
-      color: var(--muted);
-    }
+    .data-table thead th:first-child { text-align: left; }
+    .data-table td:first-child { text-align: left; font-weight: 600; color: #bbb; }
+    .data-table tbody tr:nth-child(odd) { background: rgba(255,255,255,0.02); }
+    .data-table .pos { color: var(--green); font-weight: 600; }
+    .data-table .neg { color: var(--pink); font-weight: 600; }
 
     .divider { height: 1px; background: var(--border); }
 
-    /* Circle annotation style */
-    .circle-latest {
-      font-size: 0.7rem;
-      font-weight: 700;
+    /* Scale group info banner */
+    .scale-info {
+      font-size: 0.7rem; color: var(--muted); margin-top: 6px;
+      padding: 6px 8px; background: var(--surface3); border-radius: 6px;
+      line-height: 1.4;
+    }
+
+    /* No charts state */
+    .no-charts {
+      grid-column: 1 / -1;
+      padding: 60px 20px; text-align: center; color: var(--muted);
+    }
+    .no-charts-icon { font-size: 48px; opacity: 0.25; margin-bottom: 14px; }
+    .no-charts h3 { font-size: 1rem; color: #888; margin-bottom: 6px; }
+    .no-charts p { font-size: 0.82rem; line-height: 1.5; }
+
+    /* Print */
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      .sidebar, header, .card-header .card-delete { display: none !important; }
+      .app { grid-template-columns: 1fr; }
+      .main { overflow: visible; }
+      .chart-card { border: 1px solid #ddd !important; page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -320,624 +330,851 @@
 
 <header>
   <div class="logo-mark">C</div>
-  <h1>ChartCell <span>· Alternativa think-cell con Google Sheets</span></h1>
+  <h1>ChartCell <span>· Gráficos profesionales · Multi-slide</span></h1>
+  <div class="header-spacer"></div>
+  <div class="header-actions">
+    <button class="btn btn-pdf" id="exportAllPdfBtn">🖨 PDF</button>
+    <button class="btn btn-add" id="addChartBtn">+ Gráfico</button>
+  </div>
 </header>
 
 <div class="app">
 
-  <!-- ─── SIDEBAR ─────────────────────────────── -->
+  <!-- ── SIDEBAR ─────────────────────────────────── -->
   <aside class="sidebar">
-
-    <!-- DATA SOURCE -->
-    <div>
-      <div class="panel-title">Fuente de datos</div>
-      <div class="hint-steps">
-        <div class="hint-step">
-          <div class="step-num">1</div>
-          <div>Abrí tu Google Sheet → <strong>Archivo → Compartir → Publicar en la web → CSV</strong></div>
-        </div>
-        <div class="hint-step">
-          <div class="step-num">2</div>
-          <div>Copiá la URL generada y pegala abajo</div>
-        </div>
-      </div>
-      <div style="margin-top:12px">
-        <label>URL Google Sheets (CSV publicado)</label>
-        <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv" />
-      </div>
-      <div style="margin-top:8px">
-        <button class="btn btn-secondary" id="loadDemoBtn">Cargar datos de demo MELI</button>
-      </div>
-      <div style="margin-top:6px">
-        <button class="btn btn-primary" id="fetchBtn">Cargar desde Google Sheets</button>
-      </div>
-      <div id="statusBar" style="margin-top:8px"></div>
+    <div class="sidebar-header">
+      <span class="sidebar-title">Configuración</span>
+      <span id="sbChartLabel" style="font-size:0.72rem;color:var(--muted)"></span>
     </div>
 
-    <div class="divider"></div>
-
-    <!-- CHART CONFIG -->
-    <div>
-      <div class="panel-title">Configuración del gráfico</div>
-
-      <label style="margin-top:0">Título del gráfico</label>
-      <input type="text" id="chartTitle" value="Total Items Vendidos · USD Bn" />
-
-      <label style="margin-top:10px">Subtítulo / unidad</label>
-      <input type="text" id="chartSubtitle" value="Todos los países · Datos mensuales" />
-
-      <label style="margin-top:10px">Columna de proyección (número, desde 1)</label>
-      <input type="number" id="projectionCol" min="0" value="0" placeholder="0 = desactivado" />
-      <div style="font-size:0.7rem; color:var(--muted); margin-top:3px">Ej: 13 para la columna 13</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- BRACKET CONFIG -->
-    <div>
-      <div class="panel-title">Bracket de crecimiento</div>
-      <div class="row2">
-        <div>
-          <label>Desde columna</label>
-          <input type="number" id="bracketFrom" min="1" value="1" />
-        </div>
-        <div>
-          <label>Hasta columna</label>
-          <input type="number" id="bracketTo" min="1" value="0" placeholder="último" />
-        </div>
-      </div>
-      <label style="margin-top:8px">Etiqueta (dejar vacío = auto)</label>
-      <input type="text" id="bracketLabel" placeholder="Ej: +48%" />
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- SERIES CONFIG -->
-    <div>
-      <div class="panel-title">Series / Segmentos</div>
-      <div id="seriesList" class="series-list">
-        <div style="font-size:0.78rem; color:var(--muted)">Cargá datos para ver las series</div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- TABLE CONFIG -->
-    <div>
-      <div class="panel-title">Tabla inferior (opcional)</div>
-      <label>Filas adicionales (JSON)</label>
-      <textarea id="extraRows" placeholder='[{"label":"YoY %","values":["","","","+12%","+15%"]},{"label":"Vs Plan","values":["","","","+2%","-1%"]}]'></textarea>
-      <div style="font-size:0.7rem; color:var(--muted); margin-top:3px">
-        Formato: array de objetos con <code>label</code> y <code>values</code> (mismo largo que columnas de datos)
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div>
-      <button class="btn btn-primary" id="renderBtn" style="margin-bottom:8px">Renderizar gráfico</button>
-      <div class="export-row">
-        <button class="btn btn-export" id="exportPngBtn">⬇ PNG</button>
-        <button class="btn btn-export" id="exportPdfBtn">🖨 PDF</button>
-      </div>
-    </div>
-
-  </aside>
-
-  <!-- ─── MAIN ────────────────────────────────── -->
-  <main class="main">
-
-    <div class="chart-card" id="chartCard">
+    <div class="sidebar-body">
 
       <!-- Empty state -->
-      <div class="empty-state" id="emptyState">
-        <div class="empty-icon">📊</div>
-        <h3>Todavía no hay datos</h3>
-        <p>Cargá un Google Sheet o usá los datos de demo MELI para ver el gráfico think-cell.</p>
+      <div class="sb-empty" id="sbEmpty">
+        <div class="sb-empty-icon">←</div>
+        <div>Hacé click en un gráfico para configurarlo, o agregá uno nuevo.</div>
       </div>
 
-      <!-- Chart area (hidden until data loaded) -->
-      <div id="chartArea" style="display:none">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title-main" id="displayTitle">Total Items Vendidos · USD Bn</div>
-            <div class="chart-subtitle" id="displaySubtitle">Todos los países · Datos mensuales</div>
-          </div>
-          <div class="chart-kpi">
-            <div class="kpi-value" id="kpiValue">—</div>
-            <div class="kpi-yoy" id="kpiYoy"></div>
+      <!-- Content (hidden until chart selected) -->
+      <div id="sbContent" style="display:none">
+
+        <!-- TYPE -->
+        <div class="sb-section">
+          <div class="sb-section-title">Tipo de gráfico</div>
+          <div class="type-pills">
+            <button class="type-pill" data-type="stacked">⊞<br>Stacked</button>
+            <button class="type-pill" data-type="grouped">║<br>Grouped</button>
+            <button class="type-pill" data-type="pct">%<br>100%</button>
+            <button class="type-pill" data-type="waterfall">∿<br>Bridge</button>
+            <button class="type-pill" data-type="line">↗<br>Línea</button>
+            <button class="type-pill" data-type="area">△<br>Área</button>
+            <button class="type-pill" data-type="pie">◑<br>Torta</button>
+            <button class="type-pill" data-type="hbar">═<br>H.Bar</button>
           </div>
         </div>
 
-        <div class="legend-row" id="legendRow"></div>
-
-        <div class="canvas-wrapper" id="canvasWrapper">
-          <canvas id="mainChart"></canvas>
-          <svg id="annotationSvg" width="100%" height="100%"></svg>
+        <!-- SCALE GROUP -->
+        <div class="sb-section">
+          <div class="sb-section-title">Misma escala</div>
+          <div class="hint" style="margin-bottom:8px">Sincroniza el eje Y entre gráficos del mismo grupo.</div>
+          <div class="sg-row">
+            <button class="sg-btn" data-group="">—</button>
+            <button class="sg-btn" data-group="A">A</button>
+            <button class="sg-btn" data-group="B">B</button>
+            <button class="sg-btn" data-group="C">C</button>
+          </div>
+          <div class="scale-info" id="scaleInfo" style="display:none"></div>
         </div>
 
-        <table class="data-table" id="dataTable" style="margin-top:8px"></table>
-      </div>
+        <!-- DATA SOURCE -->
+        <div class="sb-section">
+          <div class="sb-section-title">Fuente de datos</div>
+          <div class="field">
+            <label>URL Google Sheets (CSV publicado)</label>
+            <input type="url" id="sb-sheetUrl" placeholder="https://docs.google.com/…pub?output=csv" />
+          </div>
+          <button class="btn btn-secondary btn-sm" id="loadDemoABtn" style="width:100%;margin-top:0">Demo Mercosur (MLB+MLA)</button>
+          <button class="btn btn-secondary btn-sm" id="loadDemoBBtn" style="width:100%;margin-top:4px">Demo Andinos (MLM+MLC)</button>
+          <button class="btn btn-primary btn-sm" id="fetchBtn" style="margin-top:4px">↓ Cargar desde Google Sheets</button>
+          <div class="status-bar" id="sbStatus"></div>
+        </div>
 
+        <!-- CHART CONFIG -->
+        <div class="sb-section">
+          <div class="sb-section-title">Etiquetas</div>
+          <div class="field">
+            <label>Título</label>
+            <input type="text" id="sb-title" placeholder="Título del gráfico" />
+          </div>
+          <div class="field">
+            <label>Subtítulo / unidad</label>
+            <input type="text" id="sb-subtitle" placeholder="Subtítulo" />
+          </div>
+          <div class="field">
+            <label>Proyección (columna N desde 1, 0=off)</label>
+            <input type="number" id="sb-projCol" min="0" value="0" />
+          </div>
+        </div>
+
+        <!-- BRACKET -->
+        <div class="sb-section">
+          <div class="sb-section-title">Bracket de crecimiento</div>
+          <div class="row2">
+            <div class="field">
+              <label>Desde col.</label>
+              <input type="number" id="sb-bracketFrom" min="1" value="1" />
+            </div>
+            <div class="field">
+              <label>Hasta col.</label>
+              <input type="number" id="sb-bracketTo" min="1" value="0" placeholder="último" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Etiqueta (vacío = auto)</label>
+            <input type="text" id="sb-bracketLabel" placeholder="+48%" />
+          </div>
+        </div>
+
+        <!-- SERIES -->
+        <div class="sb-section">
+          <div class="sb-section-title">Series / Segmentos</div>
+          <div id="sbSeriesList" class="series-list">
+            <div style="font-size:0.78rem;color:var(--muted)">Cargá datos para ver las series</div>
+          </div>
+        </div>
+
+        <!-- EXTRA ROWS -->
+        <div class="sb-section">
+          <div class="sb-section-title">Tabla inferior (opcional)</div>
+          <div class="field">
+            <textarea id="sb-extraRows" placeholder='[{"label":"YoY %","values":["+18%","+20%"]}]'></textarea>
+            <div class="hint">Array JSON con label y values (mismo largo que columnas)</div>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="sb-section">
+          <button class="btn btn-primary" id="renderBtn">▶ Renderizar gráfico</button>
+          <div class="export-row">
+            <button class="btn btn-export btn-sm" id="exportPngBtn">⬇ PNG</button>
+            <button class="btn btn-export btn-sm" id="exportPdfBtn">🖨 PDF</button>
+          </div>
+          <button class="btn btn-danger btn-sm" id="deleteChartBtn">🗑 Eliminar este gráfico</button>
+        </div>
+
+      </div><!-- /sbContent -->
+    </div><!-- /sidebar-body -->
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────────── -->
+  <main class="main">
+    <div id="chartsContainer" class="charts-container">
+      <div class="no-charts" id="noChartsMsg">
+        <div class="no-charts-icon">📊</div>
+        <h3>No hay gráficos todavía</h3>
+        <p>Hacé click en <strong>+ Gráfico</strong> para agregar uno.</p>
+      </div>
     </div>
-
   </main>
 </div>
 
 <script>
-// ─── STATE ────────────────────────────────────────────────────────────────────
-const state = {
-  labels: [],      // X axis labels
-  series: [],      // [{name, color, data:[numbers]}]
-  extraRows: [],   // [{label, values:[strings]}]
-  chartInst: null,
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const MELI_COLORS = ['#FFE600','#3483FA','#00A650','#F23D4F','#FF7733','#9B59B6','#00BCD4','#FF9800'];
+
+const TYPE_LABELS = {
+  stacked:'Stacked', grouped:'Grouped', pct:'100%',
+  waterfall:'Bridge', line:'Línea', area:'Área', pie:'Torta', hbar:'H.Bar'
 };
 
-// MELI brand colors palette
-const MELI_COLORS = [
-  '#FFE600', // MLB - Yellow
-  '#3483FA', // MLA - Blue
-  '#00A650', // MLM - Green
-  '#F23D4F', // MLC - Pink/Red
-  '#FF7733', // Extra - Orange
-  '#9B59B6', // Extra - Purple
-  '#00BCD4', // Extra - Teal
-  '#FF9800', // Extra - Amber
-];
-
-// ─── DEMO DATA ────────────────────────────────────────────────────────────────
-const DEMO = {
-  labels: ['Jan\'25','Feb\'25','Mar\'25','Apr\'25','May\'25','Jun\'25','Jul\'25','Aug\'25','Sep\'25','Oct\'25','Nov\'25','Dec\'25','Jan\'26'],
+// ─── DEMO DATASETS ────────────────────────────────────────────────────────────
+const DEMO_A = {
+  title: 'Items Vendidos · Mercosur',
+  subtitle: 'MLB + MLA · USD Bn',
+  labels: ["Q1'25","Q2'25","Q3'25","Q4'25","Q1'26"],
   series: [
-    { name: 'MLB', color: '#FFE600', data: [12.1,12.5,13.2,13.8,14.9,15.1,16.0,16.8,17.5,18.2,19.1,20.3,20.8] },
-    { name: 'MLA', color: '#3483FA', data: [7.5,7.8,8.1,8.4,8.8,9.0,9.3,9.7,10.1,10.4,10.9,11.5,11.8] },
-    { name: 'MLM', color: '#00A650', data: [5.2,5.4,5.6,5.9,6.1,6.3,6.5,6.8,7.0,7.3,7.6,8.0,8.2] },
-    { name: 'MLC', color: '#F23D4F', data: [2.3,2.4,2.6,2.9,3.1,3.3,3.5,3.7,3.9,4.1,4.3,4.7,4.8] },
+    { name:'MLB', color:'#FFE600', data:[12.1, 14.9, 17.5, 20.3, 20.8] },
+    { name:'MLA', color:'#3483FA', data:[ 7.5,  8.8, 10.1, 11.5, 11.8] },
   ],
   extraRows: [
-    { label: 'YoY %',   values: ['+18%','+19%','+20%','+21%','+22%','+20%','+19%','+18%','+20%','+21%','+22%','+24%','+25%'] },
-    { label: 'Vs Plan', values: ['+1%','+2%','+1%','+3%','+2%','+1%','+2%','+2%','+3%','+2%','+1%','+3%','+2%'] },
+    { label:'YoY %', values:['+18%','+22%','+20%','+24%','+25%'] },
   ],
+  projectionCol: 5, bracketFrom: 1, bracketTo: 5, bracketLabel: '',
 };
 
-// ─── CSV PARSER ───────────────────────────────────────────────────────────────
-function parseCSV(text) {
-  const lines = text.trim().split('\n').map(l => l.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
-  if (lines.length < 2) throw new Error('El CSV necesita al menos 2 filas');
+const DEMO_B = {
+  title: 'Items Vendidos · Andinos',
+  subtitle: 'MLM + MLC · USD Bn',
+  labels: ["Q1'25","Q2'25","Q3'25","Q4'25","Q1'26"],
+  series: [
+    { name:'MLM', color:'#00A650', data:[5.2, 6.1, 7.0, 8.0, 8.2] },
+    { name:'MLC', color:'#F23D4F', data:[2.3, 3.1, 3.9, 4.7, 4.8] },
+  ],
+  extraRows: [
+    { label:'YoY %', values:['+17%','+19%','+18%','+22%','+20%'] },
+  ],
+  projectionCol: 5, bracketFrom: 1, bracketTo: 5, bracketLabel: '',
+};
 
-  const header = lines[0];
-  const labels = header.slice(1); // first cell is series name label, rest are X-axis labels
-  const series = [];
+// ─── APP STATE ────────────────────────────────────────────────────────────────
+const app = {
+  charts: [],
+  activeId: null,
+  nextId: 1,
+};
 
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i];
-    if (!row[0]) continue;
-    const name = row[0];
-    const data = row.slice(1).map(v => parseFloat(v.replace(/[^0-9.-]/g,'')) || 0);
-    series.push({ name, color: MELI_COLORS[(i-1) % MELI_COLORS.length], data });
+function newChartObj(opts = {}) {
+  const id = app.nextId++;
+  return {
+    id,
+    type:        opts.type        || 'stacked',
+    title:       opts.title       || 'Nuevo Gráfico',
+    subtitle:    opts.subtitle    || '',
+    labels:      opts.labels      ? [...opts.labels] : [],
+    series:      opts.series      ? opts.series.map(s => ({...s, data:[...s.data]})) : [],
+    extraRows:   opts.extraRows   ? JSON.parse(JSON.stringify(opts.extraRows)) : [],
+    projectionCol: opts.projectionCol || 0,
+    bracketFrom: opts.bracketFrom !== undefined ? opts.bracketFrom : 1,
+    bracketTo:   opts.bracketTo   || 0,
+    bracketLabel:opts.bracketLabel || '',
+    scaleGroup:  opts.scaleGroup  || null,
+    sheetUrl:    opts.sheetUrl    || '',
+    inst:        null,
+  };
+}
+
+// ─── CHART CRUD ───────────────────────────────────────────────────────────────
+function addChart(opts = {}) {
+  const c = newChartObj(opts);
+  app.charts.push(c);
+
+  const card = createCardElement(c.id);
+  document.getElementById('noChartsMsg').style.display = 'none';
+  document.getElementById('chartsContainer').appendChild(card);
+
+  setActive(c.id);
+  if (c.labels.length > 0) renderChart(c.id);
+  return c;
+}
+
+function removeChart(id) {
+  const idx = app.charts.findIndex(c => c.id === id);
+  if (idx === -1) return;
+  const c = app.charts[idx];
+  if (c.inst) { c.inst.destroy(); c.inst = null; }
+  const card = document.getElementById(`card-${id}`);
+  if (card) card.remove();
+  app.charts.splice(idx, 1);
+
+  if (app.activeId === id) {
+    app.activeId = null;
+    if (app.charts.length > 0) setActive(app.charts[app.charts.length - 1].id);
+    else { refreshSidebar(); }
   }
-
-  return { labels, series };
+  if (app.charts.length === 0) {
+    document.getElementById('noChartsMsg').style.display = '';
+  }
 }
 
-// ─── STATUS ───────────────────────────────────────────────────────────────────
-function setStatus(msg, type='info') {
-  const el = document.getElementById('statusBar');
-  el.textContent = msg;
-  el.className = type;
+function getChart(id) { return app.charts.find(c => c.id === id); }
+
+// ─── SELECTION & SIDEBAR ──────────────────────────────────────────────────────
+function setActive(id) {
+  app.activeId = id;
+  document.querySelectorAll('.chart-card').forEach(el => el.classList.remove('active'));
+  const card = document.getElementById(`card-${id}`);
+  if (card) card.classList.add('active');
+  refreshSidebar();
 }
 
-// ─── LOAD DEMO ────────────────────────────────────────────────────────────────
-document.getElementById('loadDemoBtn').addEventListener('click', () => {
-  state.labels = DEMO.labels;
-  state.series = DEMO.series.map(s => ({...s, data:[...s.data]}));
-  state.extraRows = DEMO.extraRows;
+function refreshSidebar() {
+  const chart = getChart(app.activeId);
+  document.getElementById('sbEmpty').style.display    = chart ? 'none' : '';
+  document.getElementById('sbContent').style.display  = chart ? 'flex' : 'none';
+  if (!chart) {
+    document.getElementById('sbChartLabel').textContent = '';
+    return;
+  }
+  document.getElementById('sbChartLabel').textContent = `#${chart.id}`;
 
-  document.getElementById('chartTitle').value = 'Total Items Vendidos · USD Bn';
-  document.getElementById('chartSubtitle').value = 'Todos los países · Datos mensuales';
-  document.getElementById('projectionCol').value = '13';
-  document.getElementById('bracketFrom').value = '1';
-  document.getElementById('bracketTo').value = '13';
-  document.getElementById('bracketLabel').value = '';
-  document.getElementById('extraRows').value = JSON.stringify(DEMO.extraRows, null, 2);
+  // Fill fields
+  document.getElementById('sb-title').value       = chart.title;
+  document.getElementById('sb-subtitle').value    = chart.subtitle;
+  document.getElementById('sb-sheetUrl').value    = chart.sheetUrl;
+  document.getElementById('sb-projCol').value     = chart.projectionCol;
+  document.getElementById('sb-bracketFrom').value = chart.bracketFrom;
+  document.getElementById('sb-bracketTo').value   = chart.bracketTo;
+  document.getElementById('sb-bracketLabel').value= chart.bracketLabel;
 
-  buildSeriesUI();
-  renderChart();
-  setStatus('Datos de demo MELI cargados', 'success');
-});
-
-// ─── FETCH GOOGLE SHEETS ──────────────────────────────────────────────────────
-document.getElementById('fetchBtn').addEventListener('click', async () => {
-  const url = document.getElementById('sheetUrl').value.trim();
-  if (!url) { setStatus('Ingresá una URL de Google Sheets', 'error'); return; }
-
-  setStatus('Cargando datos...', 'info');
   try {
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error('No se pudo descargar el CSV (¿está publicado?)');
-    const text = await resp.text();
-    const parsed = parseCSV(text);
-    state.labels = parsed.labels;
-    state.series = parsed.series;
+    document.getElementById('sb-extraRows').value =
+      chart.extraRows.length ? JSON.stringify(chart.extraRows, null, 2) : '';
+  } catch(e) {}
 
-    // Try extra rows from textarea
-    const extraRaw = document.getElementById('extraRows').value.trim();
-    state.extraRows = extraRaw ? JSON.parse(extraRaw) : [];
+  // Type pills
+  document.querySelectorAll('.type-pill').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.type === chart.type));
 
-    // Set bracketTo default
-    if (!document.getElementById('bracketTo').value) {
-      document.getElementById('bracketTo').value = state.labels.length;
+  // Scale group
+  document.querySelectorAll('.sg-btn').forEach(btn =>
+    btn.classList.toggle('active', (btn.dataset.group || null) === chart.scaleGroup));
+  updateScaleInfo(chart);
+
+  // Series
+  buildSeriesUI(chart);
+  document.getElementById('sbStatus').className = 'status-bar';
+}
+
+function updateScaleInfo(chart) {
+  const info = document.getElementById('scaleInfo');
+  if (!chart.scaleGroup) { info.style.display = 'none'; return; }
+  const peers = app.charts.filter(c => c.scaleGroup === chart.scaleGroup);
+  const max = getGroupMax(chart.scaleGroup);
+  info.style.display = 'block';
+  info.textContent = `Grupo ${chart.scaleGroup}: ${peers.length} gráfico${peers.length!==1?'s':''} · Y max ≈ ${max ? max.toFixed(1) : '?'}`;
+}
+
+// ─── SCALE GROUPS ─────────────────────────────────────────────────────────────
+function getGroupMax(group) {
+  if (!group) return null;
+  let maxY = 0;
+  for (const c of app.charts) {
+    if (c.scaleGroup !== group || !c.labels.length) continue;
+    for (let ci = 0; ci < c.labels.length; ci++) {
+      const total = c.series.reduce((s, ser) => s + (ser.data[ci] || 0), 0);
+      maxY = Math.max(maxY, total);
     }
-
-    buildSeriesUI();
-    renderChart();
-    setStatus(`${state.series.length} series, ${state.labels.length} períodos cargados`, 'success');
-  } catch(e) {
-    setStatus('Error: ' + e.message, 'error');
   }
-});
-
-// ─── SERIES UI ────────────────────────────────────────────────────────────────
-function buildSeriesUI() {
-  const el = document.getElementById('seriesList');
-  el.innerHTML = '';
-  state.series.forEach((s, i) => {
-    const row = document.createElement('div');
-    row.className = 'series-row';
-    row.innerHTML = `
-      <input type="color" value="${s.color}" data-idx="${i}" class="sColor" />
-      <input type="text" value="${s.name}" data-idx="${i}" class="sName series-name" />
-      <div class="series-pct" id="pct${i}">—</div>
-    `;
-    el.appendChild(row);
-  });
-
-  el.querySelectorAll('.sColor').forEach(inp => {
-    inp.addEventListener('input', e => {
-      state.series[+e.target.dataset.idx].color = e.target.value;
-    });
-  });
-  el.querySelectorAll('.sName').forEach(inp => {
-    inp.addEventListener('change', e => {
-      state.series[+e.target.dataset.idx].name = e.target.value;
-    });
-  });
+  return maxY > 0 ? maxY * 1.2 : null;
 }
 
-// ─── RENDER CHART ────────────────────────────────────────────────────────────
-document.getElementById('renderBtn').addEventListener('click', renderChart);
+// ─── RENDER DISPATCHER ────────────────────────────────────────────────────────
+function renderChart(id) {
+  const chart = getChart(id);
+  if (!chart || !chart.labels.length) return;
 
-function renderChart() {
-  if (!state.labels.length) { setStatus('Cargá datos primero', 'error'); return; }
-
-  // Read config
-  const projCol = parseInt(document.getElementById('projectionCol').value) || 0;
-
-  // Extra rows from textarea (live update)
-  try {
-    const raw = document.getElementById('extraRows').value.trim();
-    state.extraRows = raw ? JSON.parse(raw) : [];
-  } catch(e) { /* keep last valid */ }
-
-  // Show chart area
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('chartArea').style.display = 'block';
-
-  // Update title/subtitle
-  document.getElementById('displayTitle').textContent = document.getElementById('chartTitle').value;
-  document.getElementById('displaySubtitle').textContent = document.getElementById('chartSubtitle').value;
-
-  // KPI: latest total + YoY
-  const nCols = state.labels.length;
-  const lastTotal = state.series.reduce((s, ser) => s + (ser.data[nCols-1] || 0), 0);
-  document.getElementById('kpiValue').textContent = lastTotal.toFixed(1);
-
-  if (state.extraRows.length > 0 && state.extraRows[0].values) {
-    const yoy = state.extraRows[0].values[nCols-1];
-    document.getElementById('kpiYoy').textContent = yoy ? `YoY ${yoy}` : '';
-  } else {
-    document.getElementById('kpiYoy').textContent = '';
+  // Determine all charts to re-render (same scale group)
+  let batch = [id];
+  if (chart.scaleGroup) {
+    batch = app.charts
+      .filter(c => c.scaleGroup === chart.scaleGroup && c.labels.length > 0)
+      .map(c => c.id);
   }
+
+  const scaleMax = getGroupMax(chart.scaleGroup);
+
+  for (const cid of batch) {
+    renderSingle(cid, scaleMax);
+  }
+
+  // Update scale info in sidebar if this is the active chart
+  if (chart.scaleGroup && app.activeId) {
+    const active = getChart(app.activeId);
+    if (active && active.scaleGroup === chart.scaleGroup) {
+      updateScaleInfo(active);
+    }
+  }
+}
+
+function renderSingle(id, scaleMax) {
+  const chart = getChart(id);
+  if (!chart || !chart.labels.length) return;
+
+  if (chart.inst) { chart.inst.destroy(); chart.inst = null; }
+
+  switch (chart.type) {
+    case 'stacked':   chart.inst = buildStacked(chart, scaleMax);   break;
+    case 'grouped':   chart.inst = buildGrouped(chart, scaleMax);   break;
+    case 'pct':       chart.inst = build100Pct(chart);              break;
+    case 'waterfall': chart.inst = buildWaterfall(chart);           break;
+    case 'line':      chart.inst = buildLine(chart, scaleMax);      break;
+    case 'area':      chart.inst = buildArea(chart, scaleMax);      break;
+    case 'pie':       chart.inst = buildPie(chart);                 break;
+    case 'hbar':      chart.inst = buildHBar(chart, scaleMax);      break;
+  }
+
+  // Update card header UI
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.querySelector('.card-type-badge').textContent = TYPE_LABELS[chart.type] || chart.type;
+    card.querySelector('.card-title-text').textContent = chart.title;
+    card.querySelector('.card-subtitle-text').textContent = chart.subtitle;
+    const badge = card.querySelector('.card-scale-badge');
+    if (chart.scaleGroup) {
+      badge.textContent = `Escala ${chart.scaleGroup}`;
+      badge.dataset.group = chart.scaleGroup;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // Show body
+  const cardEmpty = document.querySelector(`#card-${id} .card-empty`);
+  const cardBody  = document.querySelector(`#card-${id} .card-body`);
+  if (cardEmpty) cardEmpty.style.display = 'none';
+  if (cardBody)  cardBody.style.display  = '';
 
   // Legend
-  buildLegend();
+  buildLegend(chart);
 
-  // Compute totals
-  const totals = state.labels.map((_, ci) =>
-    state.series.reduce((s, ser) => s + (ser.data[ci] || 0), 0)
-  );
+  // Bracket annotation (not for pie/pct)
+  if (['stacked','grouped','waterfall','line','area','hbar'].includes(chart.type)) {
+    requestAnimationFrame(() => drawBracket(chart));
+  }
 
-  // Update % badges in sidebar
-  state.series.forEach((s, si) => {
-    const pctEl = document.getElementById('pct' + si);
-    if (pctEl) {
-      const avg = s.data.reduce((a,b)=>a+b,0) / (s.data.length || 1);
-      const totalAvg = totals.reduce((a,b)=>a+b,0) / (totals.length || 1);
-      pctEl.textContent = totalAvg ? Math.round(avg/totalAvg*100)+'%' : '—';
-    }
-  });
+  // Data table
+  const totals = chart.labels.map((_, ci) =>
+    chart.series.reduce((s, ser) => s + (ser.data[ci] || 0), 0));
+  buildDataTable(chart, totals);
+}
 
-  // Build Chart.js datasets
-  const datasets = state.series.map(s => ({
-    label: s.name,
-    data: s.data,
-    backgroundColor: s.color,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 0,
-    stack: 'main',
-  }));
+// ─── SHARED CHART HELPERS ─────────────────────────────────────────────────────
+function makeTooltip(chart) {
+  return {
+    backgroundColor: '#1a1a1a', borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1,
+    titleColor: '#fff', bodyColor: '#ccc', footerColor: '#FFE600', padding: 10,
+    callbacks: {
+      title: ctx => chart.labels[ctx[0].dataIndex],
+      label: ctx => {
+        const v = ctx.raw;
+        const tot = chart.series.reduce((s,ser)=>s+(ser.data[ctx.dataIndex]||0),0);
+        const pct = tot > 0 ? Math.round(v/tot*100) : 0;
+        return ` ${ctx.dataset.label}: ${v.toFixed(1)} (${pct}%)`;
+      },
+      footer: ctx => {
+        const tot = chart.series.reduce((s,ser)=>s+(ser.data[ctx[0].dataIndex]||0),0);
+        return `Total: ${tot.toFixed(1)}`;
+      },
+    },
+  };
+}
 
-  // Determine canvas size
-  const wrapper = document.getElementById('canvasWrapper');
-  const canvasEl = document.getElementById('mainChart');
+function makeXScale() {
+  return {
+    stacked: true, grid: { display: false }, border: { display: false },
+    ticks: { color: '#777', font: { size: 10 } },
+  };
+}
 
-  // Destroy previous
-  if (state.chartInst) { state.chartInst.destroy(); state.chartInst = null; }
+function makeYScale(scaleMax) {
+  return {
+    stacked: true, display: false, grid: { display: false },
+    ...(scaleMax ? { max: scaleMax } : {}),
+  };
+}
 
-  // Plugin: draw % labels inside segments + totals on top
-  const labelsPlugin = {
-    id: 'labelsPlugin',
-    afterDatasetsDraw(chart) {
-      const ctx = chart.ctx;
-      const meta0 = chart.getDatasetMeta(0);
-      const nPts = meta0.data.length;
-      const nSeries = chart.data.datasets.length;
+// ─── LABELS PLUGIN (stacked & grouped) ───────────────────────────────────────
+function makeLabelsPlugin(chart) {
+  return {
+    id: `labels-${chart.id}`,
+    afterDatasetsDraw(inst) {
+      const ctx = inst.ctx;
+      const nSeries = inst.data.datasets.length;
+      const nPts = inst.data.datasets[0]?.data.length || 0;
+      const projCol = chart.projectionCol;
 
       for (let ci = 0; ci < nPts; ci++) {
-        const total = state.series.reduce((s, ser) => s + (ser.data[ci] || 0), 0);
-        let accY = 0;
+        const total = chart.series.reduce((s,ser)=>s+(ser.data[ci]||0),0);
 
-        // Draw % inside each segment
+        // % labels inside segments
         for (let si = 0; si < nSeries; si++) {
-          const meta = chart.getDatasetMeta(si);
+          const meta = inst.getDatasetMeta(si);
           const bar = meta.data[ci];
           if (!bar) continue;
-          const v = state.series[si].data[ci] || 0;
-          const pct = total > 0 ? Math.round(v / total * 100) : 0;
-          if (pct < 5) continue; // skip tiny segments
-
-          const barH = bar.height;
-          const barX = bar.x;
-          const barTop = bar.y;
-
+          const v = chart.series[si]?.data[ci] || 0;
+          const pct = total > 0 ? Math.round(v/total*100) : 0;
+          if (pct < 6 || bar.height < 14) continue;
           ctx.save();
-          ctx.font = 'bold 11px Inter, -apple-system, sans-serif';
-          ctx.fillStyle = si === 0 ? '#000' : '#fff'; // yellow bg → black text
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(pct + '%', barX, barTop + barH / 2);
+          ctx.font = 'bold 10px Inter, sans-serif';
+          ctx.fillStyle = si === 0 ? '#000' : '#fff';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(pct+'%', bar.x, bar.y + bar.height/2);
           ctx.restore();
         }
 
-        // Draw total on top of bar
-        const topBar = chart.getDatasetMeta(nSeries - 1).data[ci];
-        if (topBar) {
-          const isProjection = projCol > 0 && (ci + 1) === projCol;
+        // Total on top
+        const topBar = inst.getDatasetMeta(nSeries-1).data[ci];
+        if (topBar && total > 0) {
+          const isProj = projCol > 0 && (ci+1) === projCol;
           const isLast = ci === nPts - 1;
-
           ctx.save();
-          ctx.font = `bold 12px Inter, -apple-system, sans-serif`;
-          ctx.fillStyle = (isLast || isProjection) ? '#FFE600' : '#fff';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-
-          // circle for last value
-          if (isLast || isProjection) {
-            const tx = topBar.x;
-            const ty = topBar.y - 14;
+          ctx.font = `bold 11px Inter, sans-serif`;
+          ctx.fillStyle = (isLast || isProj) ? '#FFE600' : '#ddd';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          if (isLast || isProj) {
             ctx.beginPath();
-            ctx.arc(tx, ty + 6, 14, 0, Math.PI * 2);
-            ctx.strokeStyle = '#FFE600';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            ctx.arc(topBar.x, topBar.y - 12, 12, 0, Math.PI*2);
+            ctx.strokeStyle = '#FFE600'; ctx.lineWidth = 1.5; ctx.stroke();
           }
-
           ctx.fillText(total.toFixed(1), topBar.x, topBar.y - 4);
           ctx.restore();
-        }
 
-        // Projection arrow line
-        if (projCol > 0 && (ci + 1) === projCol) {
-          const topBar = chart.getDatasetMeta(nSeries - 1).data[ci];
-          if (topBar) {
+          // Projection dashed line
+          if (isProj) {
             ctx.save();
-            ctx.strokeStyle = '#FFE600';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = '#FFE600'; ctx.lineWidth = 1;
+            ctx.setLineDash([3,3]);
+            const lx = topBar.x - topBar.width/2 - 2;
             ctx.beginPath();
-            ctx.moveTo(topBar.x - (topBar.width / 2 + 2), chart.chartArea.top);
-            ctx.lineTo(topBar.x - (topBar.width / 2 + 2), chart.chartArea.bottom);
+            ctx.moveTo(lx, inst.chartArea.top);
+            ctx.lineTo(lx, inst.chartArea.bottom);
             ctx.stroke();
-            ctx.restore();
-
-            ctx.save();
-            ctx.font = '11px Inter, sans-serif';
-            ctx.fillStyle = '#FFE600';
-            ctx.textAlign = 'center';
-            ctx.fillText(state.labels[ci], topBar.x, chart.chartArea.top - 6);
             ctx.restore();
           }
         }
       }
     }
   };
-
-  state.chartInst = new Chart(canvasEl, {
-    type: 'bar',
-    data: { labels: state.labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2.4,
-      animation: { duration: 400 },
-      layout: { padding: { top: 30, bottom: 0, left: 0, right: 0 } },
-      scales: {
-        x: {
-          stacked: true,
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            color: '#888',
-            font: { size: 11 },
-          },
-        },
-        y: {
-          stacked: true,
-          display: false,
-          grid: { display: false },
-        },
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: ctx => state.labels[ctx[0].dataIndex],
-            label: ctx => {
-              const v = ctx.raw;
-              const total = state.series.reduce((s, ser) => s + (ser.data[ctx.dataIndex] || 0), 0);
-              const pct = total > 0 ? Math.round(v / total * 100) : 0;
-              return ` ${ctx.dataset.label}: ${v.toFixed(1)} (${pct}%)`;
-            },
-            footer: ctx => {
-              const total = state.series.reduce((s, ser) => s + (ser.data[ctx[0].dataIndex] || 0), 0);
-              return `Total: ${total.toFixed(1)}`;
-            }
-          },
-          backgroundColor: '#1a1a1a',
-          borderColor: 'rgba(255,255,255,0.15)',
-          borderWidth: 1,
-          titleColor: '#fff',
-          bodyColor: '#ccc',
-          footerColor: '#FFE600',
-          padding: 10,
-        },
-      },
-    },
-    plugins: [labelsPlugin],
-  });
-
-  // Bracket annotation (drawn after chart)
-  drawBracket();
-
-  // Data table
-  buildDataTable(totals);
 }
 
-// ─── BRACKET ─────────────────────────────────────────────────────────────────
-function drawBracket() {
-  const chart = state.chartInst;
-  if (!chart) return;
+// ─── CHART TYPE BUILDERS ──────────────────────────────────────────────────────
 
-  const fromIdx = parseInt(document.getElementById('bracketFrom').value) - 1;
-  const toRaw   = document.getElementById('bracketTo').value;
-  const toIdx   = toRaw ? parseInt(toRaw) - 1 : state.labels.length - 1;
-  const labelOverride = document.getElementById('bracketLabel').value.trim();
-
-  if (fromIdx < 0 || toIdx <= fromIdx) return;
-
-  const svg = document.getElementById('annotationSvg');
-  svg.innerHTML = '';
-
-  // Wait for chart to be fully painted
-  requestAnimationFrame(() => {
-    const nSeries = state.series.length;
-    const lastMeta = chart.getDatasetMeta(nSeries - 1);
-
-    const barFrom = lastMeta.data[fromIdx];
-    const barTo   = lastMeta.data[toIdx];
-    if (!barFrom || !barTo) return;
-
-    const totalFrom = state.series.reduce((s, ser) => s + (ser.data[fromIdx] || 0), 0);
-    const totalTo   = state.series.reduce((s, ser) => s + (ser.data[toIdx]   || 0), 0);
-
-    // Auto-calculate growth %
-    const growthPct = totalFrom > 0 ? Math.round((totalTo - totalFrom) / totalFrom * 100) : 0;
-    const labelText = labelOverride || `+${growthPct}%`;
-
-    const canvasEl = document.getElementById('mainChart');
-    const rect = canvasEl.getBoundingClientRect();
-    const svgEl = document.getElementById('annotationSvg');
-    svgEl.setAttribute('width', canvasEl.offsetWidth);
-    svgEl.setAttribute('height', canvasEl.offsetHeight);
-
-    // Y position: above the tallest bar in range
-    const yBase = Math.min(...state.labels.map((_, ci) => {
-      if (ci < fromIdx || ci > toIdx) return Infinity;
-      const bar = lastMeta.data[ci];
-      return bar ? bar.y : Infinity;
-    })) - 30;
-
-    const x1 = barFrom.x - barFrom.width / 2;
-    const x2 = barTo.x   + barTo.width / 2;
-    const yBracket = yBase - 5;
-    const tickH = 8;
-    const midX = (x1 + x2) / 2;
-
-    const ns = 'http://www.w3.org/2000/svg';
-
-    // Left tick
-    const lt = document.createElementNS(ns, 'line');
-    lt.setAttribute('x1', x1); lt.setAttribute('y1', yBracket + tickH);
-    lt.setAttribute('x2', x1); lt.setAttribute('y2', yBracket);
-    lt.setAttribute('stroke', '#FFE600'); lt.setAttribute('stroke-width', '1.5');
-    svgEl.appendChild(lt);
-
-    // Horizontal line
-    const hl = document.createElementNS(ns, 'line');
-    hl.setAttribute('x1', x1); hl.setAttribute('y1', yBracket);
-    hl.setAttribute('x2', x2); hl.setAttribute('y2', yBracket);
-    hl.setAttribute('stroke', '#FFE600'); hl.setAttribute('stroke-width', '1.5');
-    svgEl.appendChild(hl);
-
-    // Right tick
-    const rt = document.createElementNS(ns, 'line');
-    rt.setAttribute('x1', x2); rt.setAttribute('y1', yBracket + tickH);
-    rt.setAttribute('x2', x2); rt.setAttribute('y2', yBracket);
-    rt.setAttribute('stroke', '#FFE600'); rt.setAttribute('stroke-width', '1.5');
-    svgEl.appendChild(rt);
-
-    // Label background
-    const tw = labelText.length * 7 + 12;
-    const rect2 = document.createElementNS(ns, 'rect');
-    rect2.setAttribute('x', midX - tw/2);
-    rect2.setAttribute('y', yBracket - 20);
-    rect2.setAttribute('width', tw);
-    rect2.setAttribute('height', 18);
-    rect2.setAttribute('rx', '4');
-    rect2.setAttribute('fill', 'rgba(255,230,0,0.15)');
-    rect2.setAttribute('stroke', '#FFE600');
-    rect2.setAttribute('stroke-width', '1');
-    svgEl.appendChild(rect2);
-
-    // Label text
-    const txt = document.createElementNS(ns, 'text');
-    txt.setAttribute('x', midX);
-    txt.setAttribute('y', yBracket - 7);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('font-size', '11');
-    txt.setAttribute('font-weight', 'bold');
-    txt.setAttribute('font-family', 'Inter, -apple-system, sans-serif');
-    txt.setAttribute('fill', '#FFE600');
-    txt.textContent = labelText;
-    svgEl.appendChild(txt);
-
-    // Arrows at tips
-    [x1, x2].forEach((ax, ai) => {
-      const arr = document.createElementNS(ns, 'polygon');
-      const dir = ai === 0 ? 1 : -1;
-      arr.setAttribute('points', `${ax},${yBracket + tickH + 5} ${ax - 4*dir},${yBracket + tickH} ${ax + 4*dir},${yBracket + tickH}`);
-      arr.setAttribute('fill', '#FFE600');
-      svgEl.appendChild(arr);
-    });
+function buildStacked(chart, scaleMax) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const datasets = chart.series.map(s => ({
+    label: s.name, data: s.data, backgroundColor: s.color, stack:'main', borderWidth:0,
+  }));
+  return new Chart(canvas, {
+    type: 'bar',
+    data: { labels: chart.labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:28}},
+      scales: { x: makeXScale(), y: makeYScale(scaleMax) },
+      plugins: { legend:{display:false}, tooltip: makeTooltip(chart) },
+    },
+    plugins: [makeLabelsPlugin(chart)],
   });
+}
+
+function buildGrouped(chart, scaleMax) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const datasets = chart.series.map(s => ({
+    label: s.name, data: s.data, backgroundColor: s.color, borderWidth:0, borderRadius:2,
+  }));
+  return new Chart(canvas, {
+    type: 'bar',
+    data: { labels: chart.labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:20}},
+      scales: {
+        x: { stacked:false, grid:{display:false}, border:{display:false}, ticks:{color:'#777',font:{size:10}} },
+        y: { stacked:false, display:false, ...(scaleMax ? {max:scaleMax} : {}) },
+      },
+      plugins: { legend:{display:false}, tooltip: makeTooltip(chart) },
+    },
+  });
+}
+
+function build100Pct(chart) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const totals = chart.labels.map((_,ci) => chart.series.reduce((s,ser)=>s+(ser.data[ci]||0),0));
+  const datasets = chart.series.map(s => ({
+    label: s.name,
+    data: s.data.map((v,ci) => totals[ci]>0 ? Math.round(v/totals[ci]*100) : 0),
+    backgroundColor: s.color, stack:'main', borderWidth:0,
+  }));
+  const pctPlugin = {
+    id:`pct-${chart.id}`,
+    afterDatasetsDraw(inst) {
+      const ctx = inst.ctx;
+      const nS = inst.data.datasets.length;
+      for (let ci = 0; ci < (inst.data.datasets[0]?.data.length||0); ci++) {
+        for (let si = 0; si < nS; si++) {
+          const meta = inst.getDatasetMeta(si);
+          const bar = meta.data[ci];
+          if (!bar || bar.height < 14) continue;
+          const v = inst.data.datasets[si].data[ci];
+          if (v < 5) continue;
+          ctx.save();
+          ctx.font = 'bold 10px Inter, sans-serif';
+          ctx.fillStyle = si===0 ? '#000' : '#fff';
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(v+'%', bar.x, bar.y+bar.height/2);
+          ctx.restore();
+        }
+      }
+    }
+  };
+  return new Chart(canvas, {
+    type:'bar', data:{labels:chart.labels, datasets},
+    options: {
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:8}},
+      scales: {
+        x:{stacked:true,grid:{display:false},border:{display:false},ticks:{color:'#777',font:{size:10}}},
+        y:{stacked:true,display:false,max:100},
+      },
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#1a1a1a',borderColor:'rgba(255,255,255,0.15)',borderWidth:1,
+        titleColor:'#fff',bodyColor:'#ccc',padding:10,
+        callbacks:{
+          title:ctx=>chart.labels[ctx[0].dataIndex],
+          label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}%`,
+        }
+      }},
+    },
+    plugins:[pctPlugin],
+  });
+}
+
+function buildWaterfall(chart) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const values = chart.series[0]?.data || [];
+  const n = values.length;
+  const isTotalSet = new Set([0, n-1]);
+  const offsets=[], vals=[], colors=[];
+  const POS='#3483FA', NEG='#F23D4F', TOT='#FFE600';
+  let running = 0;
+
+  for (let i=0; i<n; i++) {
+    const v = values[i];
+    if (isTotalSet.has(i)) {
+      running = v;
+      offsets.push(0); vals.push(Math.abs(v)); colors.push(TOT);
+    } else if (v >= 0) {
+      offsets.push(running); vals.push(v); colors.push(POS);
+      running += v;
+    } else {
+      offsets.push(running+v); vals.push(-v); colors.push(NEG);
+      running += v;
+    }
+  }
+
+  const wfPlugin = {
+    id:`wf-${chart.id}`,
+    afterDatasetsDraw(inst) {
+      const ctx = inst.ctx;
+      const meta1 = inst.getDatasetMeta(1);
+      for (let i=0; i<meta1.data.length; i++) {
+        const bar = meta1.data[i]; if (!bar) continue;
+        const v = values[i];
+        ctx.save();
+        ctx.font='bold 10px Inter, sans-serif';
+        ctx.fillStyle = colors[i]===TOT ? '#000' : '#fff';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(
+          colors[i]===TOT ? v.toFixed(1) : (v>0 ? '+'+v.toFixed(1) : v.toFixed(1)),
+          bar.x, bar.y + bar.height/2
+        );
+        ctx.restore();
+      }
+    }
+  };
+
+  return new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels:chart.labels,
+      datasets:[
+        {label:'_offset',data:offsets,backgroundColor:'transparent',stack:'wf',borderWidth:0},
+        {label:'Valor',data:vals,backgroundColor:colors,stack:'wf',borderWidth:0},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:18}},
+      scales:{
+        x:{stacked:true,grid:{display:false},border:{display:false},ticks:{color:'#777',font:{size:10}}},
+        y:{stacked:true,display:false},
+      },
+      plugins:{legend:{display:false}},
+    },
+    plugins:[wfPlugin],
+  });
+}
+
+function buildLine(chart, scaleMax) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const datasets = chart.series.map(s => ({
+    label:s.name, data:s.data, borderColor:s.color, backgroundColor:s.color+'22',
+    borderWidth:2.5, pointRadius:4, pointHoverRadius:6, tension:0.3, fill:false,
+  }));
+  return new Chart(canvas, {
+    type:'line', data:{labels:chart.labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:18}},
+      scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{color:'#777',font:{size:10}}},
+        y:{display:false, ...(scaleMax?{max:scaleMax}:{})},
+      },
+      plugins:{legend:{display:false},tooltip:makeTooltip(chart)},
+    },
+  });
+}
+
+function buildArea(chart, scaleMax) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const datasets = chart.series.map((s,i) => ({
+    label:s.name, data:s.data, borderColor:s.color, backgroundColor:s.color+'44',
+    borderWidth:2, pointRadius:3, tension:0.3,
+    fill: i===0 ? 'origin' : '-1',
+  }));
+  return new Chart(canvas, {
+    type:'line', data:{labels:chart.labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.3,
+      animation:{duration:300}, layout:{padding:{top:18}},
+      scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{color:'#777',font:{size:10}}},
+        y:{display:false, ...(scaleMax?{max:scaleMax}:{})},
+      },
+      plugins:{legend:{display:false},tooltip:makeTooltip(chart)},
+    },
+  });
+}
+
+function buildPie(chart) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const totals = chart.series.map(s => s.data.reduce((a,b)=>a+b,0));
+  const grand  = totals.reduce((a,b)=>a+b,0);
+  const piePlugin = {
+    id:`pie-${chart.id}`,
+    afterDatasetsDraw(inst) {
+      const ctx = inst.ctx;
+      inst.getDatasetMeta(0).data.forEach((arc,i) => {
+        const pct = Math.round(totals[i]/grand*100);
+        if (pct < 4) return;
+        const mid = arc.startAngle + (arc.endAngle - arc.startAngle)/2;
+        const r   = (arc.outerRadius + arc.innerRadius)/2;
+        ctx.save();
+        ctx.font='bold 11px Inter, sans-serif'; ctx.fillStyle='#fff';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(pct+'%', arc.x+Math.cos(mid)*r, arc.y+Math.sin(mid)*r);
+        ctx.restore();
+      });
+    }
+  };
+  return new Chart(canvas, {
+    type:'doughnut',
+    data:{
+      labels:chart.series.map(s=>s.name),
+      datasets:[{data:totals, backgroundColor:chart.series.map(s=>s.color), borderWidth:2, borderColor:'#0f0f0f'}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true, aspectRatio:1.7,
+      animation:{duration:300},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1a1a1a',borderColor:'rgba(255,255,255,0.15)',borderWidth:1,
+          titleColor:'#fff',bodyColor:'#ccc',padding:10,
+          callbacks:{label:ctx=>{const p=Math.round(ctx.raw/grand*100);return ` ${ctx.label}: ${ctx.raw.toFixed(1)} (${p}%)`;}},
+        }
+      },
+    },
+    plugins:[piePlugin],
+  });
+}
+
+function buildHBar(chart, scaleMax) {
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const datasets = chart.series.map(s => ({
+    label:s.name, data:s.data, backgroundColor:s.color, stack:'main', borderWidth:0,
+  }));
+  return new Chart(canvas, {
+    type:'bar', data:{labels:chart.labels, datasets},
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:true, aspectRatio:2.0,
+      animation:{duration:300}, layout:{padding:{right:40}},
+      scales:{
+        x:{stacked:true,display:false, ...(scaleMax?{max:scaleMax}:{})},
+        y:{stacked:true,grid:{display:false},border:{display:false},ticks:{color:'#ccc',font:{size:10}}},
+      },
+      plugins:{legend:{display:false},tooltip:makeTooltip(chart)},
+    },
+  });
+}
+
+// ─── BRACKET ANNOTATION ───────────────────────────────────────────────────────
+function drawBracket(chart) {
+  const inst = chart.inst;
+  const svgEl = document.getElementById(`svg-${chart.id}`);
+  if (!inst || !svgEl) return;
+  svgEl.innerHTML = '';
+
+  const fromIdx = (chart.bracketFrom || 1) - 1;
+  const toRaw   = chart.bracketTo;
+  const toIdx   = (toRaw && toRaw > 0) ? toRaw - 1 : chart.labels.length - 1;
+
+  if (fromIdx < 0 || toIdx <= fromIdx || toIdx >= chart.labels.length) return;
+
+  // Get dataset meta for topmost series
+  const nS = inst.data.datasets.filter(d => d.label !== '_offset').length;
+  const topMeta = inst.getDatasetMeta(inst.data.datasets.length - 1);
+  const barFrom = topMeta.data[fromIdx];
+  const barTo   = topMeta.data[toIdx];
+  if (!barFrom || !barTo) return;
+
+  const totFrom = chart.series.reduce((s,ser)=>s+(ser.data[fromIdx]||0),0);
+  const totTo   = chart.series.reduce((s,ser)=>s+(ser.data[toIdx]||0),0);
+  const growth  = totFrom > 0 ? Math.round((totTo-totFrom)/totFrom*100) : 0;
+  const labelTxt = chart.bracketLabel || (growth >= 0 ? `+${growth}%` : `${growth}%`);
+
+  const cw = document.getElementById(`canvas-${chart.id}`);
+  svgEl.setAttribute('width', cw.offsetWidth);
+  svgEl.setAttribute('height', cw.offsetHeight);
+
+  // Y: above highest bar in range
+  let minY = Infinity;
+  for (let ci=fromIdx; ci<=toIdx; ci++) {
+    const b = topMeta.data[ci];
+    if (b && b.y < minY) minY = b.y;
+  }
+  const yB = minY - 28;
+  const x1 = barFrom.x - barFrom.width/2;
+  const x2 = barTo.x   + barTo.width/2;
+  const midX = (x1+x2)/2;
+  const ns = 'http://www.w3.org/2000/svg';
+  const tickH = 7;
+  const COL = '#FFE600';
+
+  const mkLine = (x1,y1,x2,y2) => {
+    const l = document.createElementNS(ns,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke',COL); l.setAttribute('stroke-width','1.5');
+    return l;
+  };
+  svgEl.appendChild(mkLine(x1, yB+tickH, x1, yB));
+  svgEl.appendChild(mkLine(x1, yB, x2, yB));
+  svgEl.appendChild(mkLine(x2, yB+tickH, x2, yB));
+
+  // Arrow tips
+  [[x1,1],[x2,-1]].forEach(([ax,dir]) => {
+    const p = document.createElementNS(ns,'polygon');
+    p.setAttribute('points',`${ax},${yB+tickH+5} ${ax-4*dir},${yB+tickH} ${ax+4*dir},${yB+tickH}`);
+    p.setAttribute('fill',COL);
+    svgEl.appendChild(p);
+  });
+
+  // Label bg + text
+  const tw = labelTxt.length * 7 + 14;
+  const bg = document.createElementNS(ns,'rect');
+  bg.setAttribute('x', midX-tw/2); bg.setAttribute('y', yB-20);
+  bg.setAttribute('width',tw); bg.setAttribute('height',18); bg.setAttribute('rx','4');
+  bg.setAttribute('fill','rgba(255,230,0,0.12)'); bg.setAttribute('stroke',COL); bg.setAttribute('stroke-width','1');
+  svgEl.appendChild(bg);
+
+  const txt = document.createElementNS(ns,'text');
+  txt.setAttribute('x',midX); txt.setAttribute('y',yB-7);
+  txt.setAttribute('text-anchor','middle'); txt.setAttribute('font-size','11');
+  txt.setAttribute('font-weight','bold');
+  txt.setAttribute('font-family','Inter, -apple-system, sans-serif');
+  txt.setAttribute('fill',COL); txt.textContent = labelTxt;
+  svgEl.appendChild(txt);
 }
 
 // ─── LEGEND ──────────────────────────────────────────────────────────────────
-function buildLegend() {
-  const el = document.getElementById('legendRow');
+function buildLegend(chart) {
+  const el = document.getElementById(`legend-${chart.id}`);
+  if (!el) return;
   el.innerHTML = '';
-  state.series.forEach(s => {
+  chart.series.forEach(s => {
     const item = document.createElement('div');
     item.className = 'legend-item';
     item.innerHTML = `<div class="legend-dot" style="background:${s.color}"></div><span>${s.name}</span>`;
@@ -946,64 +1183,295 @@ function buildLegend() {
 }
 
 // ─── DATA TABLE ──────────────────────────────────────────────────────────────
-function buildDataTable(totals) {
-  const tbl = document.getElementById('dataTable');
+function buildDataTable(chart, totals) {
+  const tbl = document.getElementById(`table-${chart.id}`);
+  if (!tbl) return;
   tbl.innerHTML = '';
+  if (!chart.extraRows.length) return;
 
-  // Header row
-  const thead = document.createElement('thead');
-  const htr = document.createElement('tr');
-  [''].concat(state.labels).forEach(l => {
+  const thead = tbl.createTHead();
+  const htr = thead.insertRow();
+  [''].concat(chart.labels).forEach(l => {
     const th = document.createElement('th');
-    th.textContent = l;
-    htr.appendChild(th);
+    th.textContent = l; htr.appendChild(th);
   });
-  thead.appendChild(htr);
-  tbl.appendChild(thead);
 
-  const tbody = document.createElement('tbody');
-
-  // Extra rows
-  state.extraRows.forEach(row => {
-    const tr = document.createElement('tr');
-    const td0 = document.createElement('td');
+  const tbody = tbl.createTBody();
+  chart.extraRows.forEach(row => {
+    const tr = tbody.insertRow();
+    const td0 = tr.insertCell();
     td0.textContent = row.label;
-    tr.appendChild(td0);
     (row.values || []).forEach(v => {
-      const td = document.createElement('td');
-      td.textContent = v || '';
+      const td = tr.insertCell(); td.textContent = v || '';
       if (typeof v === 'string') {
-        if (v.startsWith('+')) td.className = 'positive';
-        else if (v.startsWith('-')) td.className = 'negative';
+        if (v.startsWith('+')) td.className = 'pos';
+        else if (v.startsWith('-')) td.className = 'neg';
       }
-      tr.appendChild(td);
     });
-    tbody.appendChild(tr);
   });
-
-  tbl.appendChild(tbody);
 }
 
-// ─── EXPORTS ─────────────────────────────────────────────────────────────────
-document.getElementById('exportPngBtn').addEventListener('click', () => {
-  if (!state.chartInst) { setStatus('Renderizá el gráfico primero', 'error'); return; }
-  const canvas = document.getElementById('mainChart');
-  const link = document.createElement('a');
-  link.download = 'chartcell.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+// ─── SERIES UI ────────────────────────────────────────────────────────────────
+function buildSeriesUI(chart) {
+  const el = document.getElementById('sbSeriesList');
+  if (!el) return;
+  if (!chart.series.length) {
+    el.innerHTML = '<div style="font-size:0.78rem;color:var(--muted)">Cargá datos para ver las series</div>';
+    return;
+  }
+  el.innerHTML = '';
+  chart.series.forEach((s,i) => {
+    const row = document.createElement('div');
+    row.className = 'series-row';
+    row.innerHTML = `
+      <input type="color" value="${s.color}" data-idx="${i}" class="sColor" />
+      <input type="text" value="${s.name}" data-idx="${i}" class="sName" />
+      <div class="series-pct" id="sbPct${i}">—</div>
+    `;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('.sColor').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const c = getChart(app.activeId); if(!c) return;
+      c.series[+e.target.dataset.idx].color = e.target.value;
+    });
+  });
+  el.querySelectorAll('.sName').forEach(inp => {
+    inp.addEventListener('change', e => {
+      const c = getChart(app.activeId); if(!c) return;
+      c.series[+e.target.dataset.idx].name = e.target.value;
+    });
+  });
+}
+
+// ─── DOM: CREATE CARD ────────────────────────────────────────────────────────
+function createCardElement(id) {
+  const card = document.createElement('div');
+  card.className = 'chart-card';
+  card.id = `card-${id}`;
+  card.dataset.id = id;
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-type-badge">Stacked</span>
+      <div style="flex:1;min-width:0">
+        <div class="card-title-text">Nuevo Gráfico</div>
+        <div class="card-subtitle-text"></div>
+      </div>
+      <span class="card-scale-badge" style="display:none"></span>
+      <button class="card-delete" data-id="${id}" title="Eliminar gráfico">×</button>
+    </div>
+    <div class="card-empty">
+      <div class="card-empty-icon">📊</div>
+      <div>Cargá datos desde el panel lateral</div>
+    </div>
+    <div class="card-body" style="display:none">
+      <div class="legend-row" id="legend-${id}"></div>
+      <div class="canvas-wrapper">
+        <canvas class="chart-canvas" id="canvas-${id}" height="0"></canvas>
+        <svg class="anno-svg" id="svg-${id}" width="0" height="0"></svg>
+      </div>
+      <table class="data-table" id="table-${id}"></table>
+    </div>
+  `;
+
+  // Click card → select
+  card.addEventListener('click', (e) => {
+    if (e.target.classList.contains('card-delete')) return;
+    setActive(+card.dataset.id);
+  });
+
+  // Delete button
+  card.querySelector('.card-delete').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (app.charts.length === 1 || confirm('¿Eliminar este gráfico?')) {
+      removeChart(+e.target.dataset.id);
+    }
+  });
+
+  return card;
+}
+
+// ─── CSV PARSER ───────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n').map(l =>
+    l.split(',').map(c => c.trim().replace(/^"|"$/g,''))
+  );
+  if (lines.length < 2) throw new Error('CSV necesita al menos 2 filas');
+  const labels = lines[0].slice(1);
+  const series = [];
+  for (let i=1; i<lines.length; i++) {
+    const row = lines[i]; if (!row[0]) continue;
+    series.push({
+      name: row[0],
+      color: MELI_COLORS[(i-1) % MELI_COLORS.length],
+      data: row.slice(1).map(v => parseFloat(v.replace(/[^0-9.-]/g,'')) || 0),
+    });
+  }
+  return { labels, series };
+}
+
+function setStatus(msg, type='info') {
+  const el = document.getElementById('sbStatus');
+  el.textContent = msg; el.className = 'status-bar ' + type;
+}
+
+// ─── READ SIDEBAR → ACTIVE CHART ─────────────────────────────────────────────
+function readSidebarIntoChart() {
+  const chart = getChart(app.activeId);
+  if (!chart) return;
+  chart.title        = document.getElementById('sb-title').value;
+  chart.subtitle     = document.getElementById('sb-subtitle').value;
+  chart.sheetUrl     = document.getElementById('sb-sheetUrl').value;
+  chart.projectionCol= parseInt(document.getElementById('sb-projCol').value) || 0;
+  chart.bracketFrom  = parseInt(document.getElementById('sb-bracketFrom').value) || 1;
+  chart.bracketTo    = parseInt(document.getElementById('sb-bracketTo').value) || 0;
+  chart.bracketLabel = document.getElementById('sb-bracketLabel').value;
+  try {
+    const raw = document.getElementById('sb-extraRows').value.trim();
+    chart.extraRows = raw ? JSON.parse(raw) : [];
+  } catch(e) {}
+}
+
+// ─── EVENT: LOAD DEMO A ───────────────────────────────────────────────────────
+document.getElementById('loadDemoABtn').addEventListener('click', () => {
+  const chart = getChart(app.activeId); if(!chart) return;
+  Object.assign(chart, {
+    title: DEMO_A.title, subtitle: DEMO_A.subtitle,
+    labels: [...DEMO_A.labels],
+    series: DEMO_A.series.map(s=>({...s,data:[...s.data]})),
+    extraRows: JSON.parse(JSON.stringify(DEMO_A.extraRows)),
+    projectionCol: DEMO_A.projectionCol,
+    bracketFrom: DEMO_A.bracketFrom, bracketTo: DEMO_A.bracketTo, bracketLabel:'',
+  });
+  refreshSidebar();
+  renderChart(chart.id);
+  setStatus('Demo Mercosur cargado', 'success');
 });
 
-document.getElementById('exportPdfBtn').addEventListener('click', () => {
-  window.print();
+// ─── EVENT: LOAD DEMO B ───────────────────────────────────────────────────────
+document.getElementById('loadDemoBBtn').addEventListener('click', () => {
+  const chart = getChart(app.activeId); if(!chart) return;
+  Object.assign(chart, {
+    title: DEMO_B.title, subtitle: DEMO_B.subtitle,
+    labels: [...DEMO_B.labels],
+    series: DEMO_B.series.map(s=>({...s,data:[...s.data]})),
+    extraRows: JSON.parse(JSON.stringify(DEMO_B.extraRows)),
+    projectionCol: DEMO_B.projectionCol,
+    bracketFrom: DEMO_B.bracketFrom, bracketTo: DEMO_B.bracketTo, bracketLabel:'',
+  });
+  refreshSidebar();
+  renderChart(chart.id);
+  setStatus('Demo Andinos cargado', 'success');
 });
 
-// ─── BRACKET RE-DRAW ON RESIZE ────────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  if (state.chartInst) {
-    setTimeout(drawBracket, 100);
+// ─── EVENT: FETCH GOOGLE SHEETS ───────────────────────────────────────────────
+document.getElementById('fetchBtn').addEventListener('click', async () => {
+  const chart = getChart(app.activeId); if(!chart) return;
+  const url = document.getElementById('sb-sheetUrl').value.trim();
+  if (!url) { setStatus('Ingresá una URL de Google Sheets', 'error'); return; }
+  setStatus('Cargando...', 'info');
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('No se pudo descargar (¿está publicado como CSV?)');
+    const parsed = parseCSV(await resp.text());
+    chart.labels  = parsed.labels;
+    chart.series  = parsed.series;
+    chart.sheetUrl = url;
+    refreshSidebar();
+    renderChart(chart.id);
+    setStatus(`${parsed.series.length} series · ${parsed.labels.length} períodos`, 'success');
+  } catch(e) {
+    setStatus('Error: ' + e.message, 'error');
   }
 });
+
+// ─── EVENT: RENDER ────────────────────────────────────────────────────────────
+document.getElementById('renderBtn').addEventListener('click', () => {
+  const chart = getChart(app.activeId); if(!chart) return;
+  readSidebarIntoChart();
+  if (!chart.labels.length) { setStatus('Cargá datos primero', 'error'); return; }
+  renderChart(chart.id);
+  setStatus('Gráfico actualizado', 'success');
+});
+
+// ─── EVENT: TYPE PILLS ───────────────────────────────────────────────────────
+document.querySelectorAll('.type-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const chart = getChart(app.activeId); if(!chart) return;
+    chart.type = btn.dataset.type;
+    document.querySelectorAll('.type-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (chart.labels.length) renderChart(chart.id);
+  });
+});
+
+// ─── EVENT: SCALE GROUP BUTTONS ──────────────────────────────────────────────
+document.querySelectorAll('.sg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const chart = getChart(app.activeId); if(!chart) return;
+    const newGroup = btn.dataset.group || null;
+    chart.scaleGroup = newGroup;
+    document.querySelectorAll('.sg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateScaleInfo(chart);
+    // Re-render all affected charts
+    if (chart.labels.length) renderChart(chart.id);
+    // Also re-render any charts that were previously in a group that now has different max
+    app.charts.forEach(c => {
+      if (c.id !== chart.id && c.scaleGroup && c.labels.length) renderChart(c.id);
+    });
+  });
+});
+
+// ─── EVENT: ADD CHART ────────────────────────────────────────────────────────
+document.getElementById('addChartBtn').addEventListener('click', () => {
+  addChart({ type: 'stacked', title: `Gráfico ${app.nextId}` });
+});
+
+// ─── EVENT: DELETE (from sidebar) ────────────────────────────────────────────
+document.getElementById('deleteChartBtn').addEventListener('click', () => {
+  if (!app.activeId) return;
+  if (app.charts.length === 1 || confirm('¿Eliminar este gráfico?')) {
+    removeChart(app.activeId);
+  }
+});
+
+// ─── EVENT: EXPORT PNG ───────────────────────────────────────────────────────
+document.getElementById('exportPngBtn').addEventListener('click', () => {
+  const chart = getChart(app.activeId);
+  if (!chart || !chart.inst) { setStatus('Renderizá el gráfico primero', 'error'); return; }
+  const canvas = document.getElementById(`canvas-${chart.id}`);
+  const a = document.createElement('a');
+  a.download = `chartcell-${chart.id}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+});
+
+document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
+document.getElementById('exportAllPdfBtn').addEventListener('click', () => window.print());
+
+// ─── RESIZE: RE-DRAW BRACKETS ────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  app.charts.forEach(c => {
+    if (c.inst) requestAnimationFrame(() => drawBracket(c));
+  });
+});
+
+// ─── INIT: 2 DEMO CHARTS WITH SAME SCALE GROUP ───────────────────────────────
+(function init() {
+  // Chart 1: Mercosur — scale group A
+  const c1 = addChart({ ...DEMO_A, type:'stacked', scaleGroup:'A' });
+
+  // Chart 2: Andinos — same scale group A (demonstrates misma escala)
+  const c2 = addChart({ ...DEMO_B, type:'stacked', scaleGroup:'A' });
+
+  // Re-render both with shared scale (group A max)
+  const maxA = getGroupMax('A');
+  renderSingle(c1.id, maxA);
+  renderSingle(c2.id, maxA);
+
+  setActive(c1.id);
+})();
 </script>
 </body>
 </html>
